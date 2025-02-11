@@ -1,0 +1,2 @@
+# WindowsServiceAgent
+ 使无法与Windows服务控制管理器通信的应用被代理注册为服务
