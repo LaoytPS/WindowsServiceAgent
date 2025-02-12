@@ -6,6 +6,8 @@ using System.Configuration.Install;
 using System.Linq;
 using System.Threading.Tasks;
 using System.ServiceProcess;
+using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace WindowsServiceAgent
 {
@@ -23,28 +25,28 @@ namespace WindowsServiceAgent
             serviceProcessInstaller1 = new ServiceProcessInstaller();
             serviceInstaller1 = new ServiceInstaller();
 
-            // 添加到安装程序集合中
-            Installers.AddRange(new Installer[] { serviceProcessInstaller1, serviceInstaller1 });
-
-            // 设置默认值（稍后通过代码动态更改）
+            // 设置默认值
             serviceProcessInstaller1.Account = ServiceAccount.LocalSystem;
             serviceInstaller1.ServiceName = "WindowsServiceAgent";
-            serviceInstaller1.DisplayName = "Windows Service Agent";
-            serviceInstaller1.Description = "Agent service to host applications.";
+            serviceInstaller1.DisplayName = "WindowsServiceAgent Error!!!";
+            serviceInstaller1.Description = "这个服务不应该存在，这是WindowsServiceAgent的默认创建服务，请在终端使用命令sc.exe delete WindowsServiceAgent";
             serviceInstaller1.StartType = ServiceStartMode.Automatic;
+
+            // 添加到安装程序集合中
+            Installers.AddRange(new Installer[] { serviceProcessInstaller1, serviceInstaller1 });
         }
 
+        //重写安装方法
         public override void Install(IDictionary stateSaver)
-        {
-            // 在调用 base.Install(stateSaver) 之前，处理传递的参数
+            {
+            // 获取安装时传递的参数
             string serviceName = Context.Parameters["ServiceName"];
             string displayName = Context.Parameters["DisplayName"];
             string description = Context.Parameters["Description"];
+            string arguments = Context.Parameters["Arguments"];
             string startType = Context.Parameters["StartType"];
             string account = Context.Parameters["Account"];
-            string username = Context.Parameters["Username"];
-            string password = Context.Parameters["Password"];
-
+            
             // 设置服务名称
             if (!string.IsNullOrEmpty(serviceName))
             {
@@ -61,6 +63,13 @@ namespace WindowsServiceAgent
             if (!string.IsNullOrEmpty(description))
             {
                 serviceInstaller1.Description = description;
+            }
+
+            // 设置启动参数
+            if (!string.IsNullOrEmpty(arguments))
+            {
+                string Path = $"\"{Context.Parameters["assemblypath"]}\" {arguments}";
+                Context.Parameters["assemblypath"] = Path.ToString();
             }
 
             // 设置启动类型
@@ -83,7 +92,7 @@ namespace WindowsServiceAgent
                 }
             }
 
-            // 设置运行账户
+            // 设置服务运行账户
             if (!string.IsNullOrEmpty(account))
             {
                 switch (account.ToLower())
@@ -99,6 +108,9 @@ namespace WindowsServiceAgent
                         break;
                     case "user":
                         serviceProcessInstaller1.Account = ServiceAccount.User;
+                        // 如果是用户账户，还需要提供用户名和密码
+                        string username = Context.Parameters["Username"];
+                        string password = Context.Parameters["Password"];
                         serviceProcessInstaller1.Username = username;
                         serviceProcessInstaller1.Password = password;
                         break;
@@ -107,16 +119,15 @@ namespace WindowsServiceAgent
                         break;
                 }
             }
-
-            // 调用基类的 Install 方法
             base.Install(stateSaver);
         }
 
+        //重写卸载方法
         public override void Uninstall(IDictionary savedState)
         {
-            // 可以在此处理卸载时的逻辑（如果需要）
             base.Uninstall(savedState);
         }
+
     }
 
 }

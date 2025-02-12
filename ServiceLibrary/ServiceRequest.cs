@@ -8,7 +8,7 @@ namespace ServiceLibrary
 {
     public class ServiceRequest
     {
-       public string Command { get; set; }
+        public string Command { get; set; }
         public string ServiceName { get; set; }
         public string ExecutablePath { get; set; }
         public string Arguments { get; set; }

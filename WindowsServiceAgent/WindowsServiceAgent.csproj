@@ -63,6 +63,7 @@
     <Compile Include="ProjectInstaller.Designer.cs">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="ServiceConfig.cs" />
     <Compile Include="WindowsServiceAgent.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -80,12 +81,6 @@
     <EmbeddedResource Include="ProjectInstaller.resx">
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ServiceLibrary\ServiceLibrary.csproj">
-      <Project>{84083fe2-9ac9-4f5e-8308-905a6880e8bd}</Project>
-      <Name>ServiceLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
