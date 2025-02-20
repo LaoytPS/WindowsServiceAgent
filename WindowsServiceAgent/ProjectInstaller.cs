@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.ComponentModel;
 using System.Configuration.Install;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ServiceProcess;
-using System.Security.Cryptography;
-using System.Diagnostics;
 
 namespace WindowsServiceAgent
 {
@@ -38,7 +32,7 @@ namespace WindowsServiceAgent
 
         //重写安装方法
         public override void Install(IDictionary stateSaver)
-            {
+        {
             // 获取安装时传递的参数
             string serviceName = Context.Parameters["ServiceName"];
             string displayName = Context.Parameters["DisplayName"];
@@ -46,7 +40,7 @@ namespace WindowsServiceAgent
             string arguments = Context.Parameters["Arguments"];
             string startType = Context.Parameters["StartType"];
             string account = Context.Parameters["Account"];
-            
+
             // 设置服务名称
             if (!string.IsNullOrEmpty(serviceName))
             {

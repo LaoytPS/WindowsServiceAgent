@@ -1,38 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
-namespace ServiceManager
+namespace WindowsServiceAgentManager
 {
-    public class ServiceInfo : INotifyPropertyChanged
+    public class ServiceInfo: INotifyPropertyChanged
     {
         public string ServiceName { get; set; }
         public string DisplayName { get; set; }
-
+        
         private string status;
         public string Status
         {
             get { return status; }
             set { status = value; OnPropertyChanged(nameof(Status)); }
         }
-
-        private int pid;
-        public int PID
+        
+        private int? pid;
+        public int? PID
         {
             get { return pid; }
             set { pid = value; OnPropertyChanged(nameof(PID)); }
         }
-
+        
         private string ports;
         public string Ports
         {
             get { return ports; }
             set { ports = value; OnPropertyChanged(nameof(Ports)); }
         }
-
+        
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {

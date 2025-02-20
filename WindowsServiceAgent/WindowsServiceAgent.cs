@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using Newtonsoft.Json;
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.IO;
-using Newtonsoft.Json;
-using System.Management;
 
 namespace WindowsServiceAgent
 {
@@ -21,6 +16,13 @@ namespace WindowsServiceAgent
         private Process AgentProcess;
         private FileSystemWatcher configWatcher;
         private string LogFilePath;
+        public enum EventLogType
+        {
+            错误 = 1,
+            警告 = 2,
+            信息 = 4,
+            调试 = 8,
+        };
 
         // 服务初始化
         public WindowsServiceAgent()
@@ -82,11 +84,8 @@ namespace WindowsServiceAgent
         }
 
         // 日志记录
-        private void Log(string message, EventLogEntryType type)
+        private void Log(string message, EventLogType type)
         {
-            // 写入事件日志
-            EventLog.WriteEntry(message, type);
-
             // 写入日志文件
             try
             {
@@ -106,9 +105,9 @@ namespace WindowsServiceAgent
             // 设置配置文件路径
             string configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfigs");
             string configFilePath = Path.Combine(configDirectory, $"{serviceName}.json");
-            Log("正在尝试加载配置文件。", EventLogEntryType.Information);
+            Log("正在尝试加载配置文件。", EventLogType.信息);
 
-            // 确保日志目录存在
+            // 确保配置文件目录存在
             if (!Directory.Exists(configDirectory))
             {
                 Directory.CreateDirectory(configDirectory);
@@ -118,7 +117,7 @@ namespace WindowsServiceAgent
             if (!File.Exists(configFilePath))
             {
                 // 日志记录或错误处理
-                Log($"配置文件 {configFilePath} 未找到，请确保应用运行目录下有ServiceConfigs文件夹，以及同服务名称的.json文件", EventLogEntryType.Error);
+                Log($"配置文件 {configFilePath} 未找到，请确保应用运行目录下有ServiceConfigs文件夹，以及同服务名称的.json文件", EventLogType.错误);
                 this.ExitCode = 1064; // ERROR_SERVICE_NO_THREAD
                 Stop();
                 return;
@@ -137,7 +136,7 @@ namespace WindowsServiceAgent
             }
             catch (Exception ex)
             {
-                Log($"加载配置文件时出错：{ex.Message}\r\n请检查软件是否拥有对配置文件读取的权限，以及是否以管理员身份运行此程序。", EventLogEntryType.Error);
+                Log($"加载配置文件时出错：{ex.Message}\r\n请检查软件是否拥有对配置文件读取的权限，以及是否以管理员身份运行此程序。", EventLogType.错误);
                 this.ExitCode = 1064;
                 Stop();
             }
@@ -146,11 +145,11 @@ namespace WindowsServiceAgent
         // 尝试启动被代理的应用程序
         private void StartApplication()
         {
-            Log("正在尝试启动目标应用程序。", EventLogEntryType.Information);
+            Log("正在尝试启动目标应用程序。", EventLogType.信息);
             // 检测应用路径是否为空
             if (string.IsNullOrEmpty(executablePath))
             {
-                Log("应用程序路径未配置。", EventLogEntryType.Error);
+                Log("应用程序路径未配置。", EventLogType.错误);
                 this.ExitCode = 1064;
                 Stop();
                 return;
@@ -176,13 +175,13 @@ namespace WindowsServiceAgent
             }
             catch (Exception ex)
             {
-                Log($"启动被代理应用程序时出错：{ex.Message}", EventLogEntryType.Error);
+                Log($"启动被代理应用程序时出错：{ex.Message}", EventLogType.错误);
                 this.ExitCode = 1064;
                 Stop();
             }
 
             AgentProcess.Exited += OnAgentProcessExited;
-            
+
         }
 
         // 服务启动时
@@ -213,7 +212,7 @@ namespace WindowsServiceAgent
                 }
                 catch (Exception ex)
                 {
-                    Log($"停止被代理应用程序时出错：{ex.Message}", EventLogEntryType.Error);
+                    Log($"停止被代理应用程序时出错：{ex.Message}", EventLogType.错误);
                 }
                 finally
                 {
@@ -226,20 +225,20 @@ namespace WindowsServiceAgent
         // 代理应用程序退出时
         private void OnAgentProcessExited(object sender, EventArgs e)
         {
-            Log("被代理应用程序已退出。已对Windows服务控制管理器发送关闭服务命令", EventLogEntryType.Warning);
+            Log("被代理应用程序已退出。已对Windows服务控制管理器发送关闭服务命令", EventLogType.警告);
             Stop();
         }
 
         // 配置文件更改时
         private void OnConfigChanged(object sender, FileSystemEventArgs e)
         {
-            Log("当前服务配置文件已被更改，已尝试关闭之前代理的应用程序，正在重新加载配置并启动", EventLogEntryType.Warning);
+            Log("当前服务配置文件已被更改，已尝试关闭之前代理的应用程序，正在重新加载配置并启动", EventLogType.警告);
             // 停止当前的被代理应用程序
             OnStop();
             // 重新加载配置并启动
             LoadConfiguration(this.ServiceName);
             StartApplication();
         }
-        
+
     }
 }

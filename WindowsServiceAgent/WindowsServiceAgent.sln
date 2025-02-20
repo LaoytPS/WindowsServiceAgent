@@ -5,9 +5,7 @@ VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceAgent", "WindowsServiceAgent.csproj", "{72C5713C-592B-4171-B910-24115F187784}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceManager", "..\ServiceManager\ServiceManager.csproj", "{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceLibrary", "..\ServiceLibrary\ServiceLibrary.csproj", "{84083FE2-9AC9-4F5E-8308-905A6880E8BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceAgentManager", "..\WindowsServiceAgentManager\WindowsServiceAgentManager.csproj", "{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +21,11 @@ Global
 		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84083FE2-9AC9-4F5E-8308-905A6880E8BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84083FE2-9AC9-4F5E-8308-905A6880E8BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84083FE2-9AC9-4F5E-8308-905A6880E8BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84083FE2-9AC9-4F5E-8308-905A6880E8BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {664A4651-4CF5-47C7-99C2-0F9735E9403E}
 	EndGlobalSection
 EndGlobal
