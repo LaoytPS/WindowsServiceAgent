@@ -13,19 +13,16 @@ namespace WindowsServiceAgentManager
     };
     public class Logging
     {
-        private string LogFilePath;
+        private static readonly string LogDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
+        private static readonly string LogPath = Path.Combine(LogDirectory, "WindowsServiceAgentGUI.log");
         // 初始化日志记录
         public void InitializeLog()
         {
-            string logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
             // 确保日志目录存在
-            if (!Directory.Exists(logDirectory))
+            if (!Directory.Exists(LogDirectory))
             {
-                Directory.CreateDirectory(logDirectory);
+                Directory.CreateDirectory(LogDirectory);
             }
-
-            // 创建日志文件路径
-            LogFilePath = Path.Combine(logDirectory, "WindowsServiceAgentGUI.log");
         }
         // 日志事件
         public void Log(string message, EventLogType type)
@@ -34,7 +31,7 @@ namespace WindowsServiceAgentManager
             try
             {
                 string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{type}] {message}{Environment.NewLine}";
-                File.AppendAllText(LogFilePath, logEntry);
+                File.AppendAllText(LogPath, logEntry);
             }
             catch (Exception ex)
             {

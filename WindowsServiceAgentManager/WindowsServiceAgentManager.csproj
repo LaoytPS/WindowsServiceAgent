@@ -102,6 +102,7 @@
     </ApplicationDefinition>
     <Compile Include="Logging.cs" />
     <Compile Include="ServiceConfig.cs" />
+    <Compile Include="ServiceEvent.cs" />
     <Compile Include="ServiceInfo.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
