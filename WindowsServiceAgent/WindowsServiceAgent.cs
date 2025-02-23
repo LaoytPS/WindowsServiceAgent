@@ -13,10 +13,11 @@ namespace WindowsServiceAgent
         private string executablePath;
         private string arguments;
         private string workingDirectory;
+        private string ConfigName;
         private Process AgentProcess;
         private FileSystemWatcher configWatcher;
         private string LogFilePath;
-        public enum EventLogType
+        private enum EventLogType
         {
             错误 = 1,
             警告 = 2,
@@ -28,32 +29,29 @@ namespace WindowsServiceAgent
         public WindowsServiceAgent()
         {
             InitializeComponent();
-            this.ServiceName = InitializeServiceName();
+            ConfigName = InitializeConfigName();
             InitializeLog();
         }
 
-        // 初始化服务名称
-        private string InitializeServiceName()
+        // 初始化配置文件名称
+        private string InitializeConfigName()
         {
-            // 获取命令行参数（包括可执行文件路径）
-            string[] Args = Environment.GetCommandLineArgs();
+            // 获取命令行参数（包括可执行文件路径）并移除第一个元素（可执行文件路径），获取实际的启动参数
+            string[] Args = Environment.GetCommandLineArgs().Skip(1).ToArray();
 
-            // 移除第一个元素（可执行文件路径），获取实际的启动参数
-            string[] args = Args.Skip(1).ToArray();
-
-            // 默认服务名称
-            string serviceName = "No Args";
+            // 默认配置文件名称
+            string ConfigName = "No_Args";
 
             // 解析启动参数
-            for (int i = 0; i < args.Length; i++)
+            for (int i = 0; i < Args.Length; i++)
             {
-                if ((args[i] == "-sn" || args[i] == "--servicename") && i + 1 < args.Length)
+                if ((Args[i] == "-c" || Args[i] == "--configname") && i + 1 < Args.Length)
                 {
-                    serviceName = args[i + 1];
+                    ConfigName = Args[i + 1];
                     i++; // 跳过已处理的参数
                 }
             }
-            return serviceName;
+            return ConfigName;
         }
 
         // 初始化日志记录
@@ -66,9 +64,8 @@ namespace WindowsServiceAgent
                 Directory.CreateDirectory(logDirectory);
             }
 
-            // 使用服务名称来命名日志文件
-            string serviceName = this.ServiceName;
-            LogFilePath = Path.Combine(logDirectory, $"{serviceName}_Output.log");
+            // 使用配置文件名称来命名日志文件
+            LogFilePath = Path.Combine(logDirectory, $"{ConfigName}_Output.log");
         }
 
         // 初始化配置文件监视器
@@ -100,11 +97,11 @@ namespace WindowsServiceAgent
         }
 
         // 加载服务配置
-        private void LoadConfiguration(string serviceName)
+        private void LoadConfiguration()
         {
             // 设置配置文件路径
             string configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfigs");
-            string configFilePath = Path.Combine(configDirectory, $"{serviceName}.json");
+            string configFilePath = Path.Combine(configDirectory, $"{ConfigName}.json");
             Log("正在尝试加载配置文件。", EventLogType.信息);
 
             // 确保配置文件目录存在
@@ -187,17 +184,14 @@ namespace WindowsServiceAgent
         // 服务启动时
         protected override void OnStart(string[] args)
         {
-            // 获取当前服务的名称
-            string serviceName = this.ServiceName;
-
             // 加载配置
-            LoadConfiguration(serviceName);
+            LoadConfiguration();
 
             // 启动被代理的应用程序
             StartApplication();
 
             // 启动配置文件监视器
-            InitializeConfigWatcher(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"ServiceConfigs\{serviceName}.json"));
+            InitializeConfigWatcher(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"ServiceConfigs\{ConfigName}.json"));
         }
 
         // 服务停止时
@@ -236,7 +230,7 @@ namespace WindowsServiceAgent
             // 停止当前的被代理应用程序
             OnStop();
             // 重新加载配置并启动
-            LoadConfiguration(this.ServiceName);
+            LoadConfiguration();
             StartApplication();
         }
 

@@ -23,7 +23,7 @@ namespace WindowsServiceAgent
             serviceProcessInstaller1.Account = ServiceAccount.LocalSystem;
             serviceInstaller1.ServiceName = "WindowsServiceAgent";
             serviceInstaller1.DisplayName = "WindowsServiceAgent Error!!!";
-            serviceInstaller1.Description = "这个服务不应该存在，这是WindowsServiceAgent的默认创建服务，请在终端使用命令sc.exe delete WindowsServiceAgent";
+            serviceInstaller1.Description = "这个服务不应该存在，这是WindowsServiceAgent的默认创建服务，请在终端使用命令sc.exe delete WindowsServiceAgent删除";
             serviceInstaller1.StartType = ServiceStartMode.Automatic;
 
             // 添加到安装程序集合中

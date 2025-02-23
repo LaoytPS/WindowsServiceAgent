@@ -45,7 +45,7 @@ namespace WindowsServiceAgentManager
                     $"/Description={config.Description}",
                     $"/StartType={config.StartType}",
                     $"/Account={config.Account}",
-                    $"/Arguments=\"-sn {config.ServiceName}\""
+                    $"/Arguments=\"-c {config.ServiceName}\""
                 };
                 // 调试输出
                 // log.Log($"确认服务名称{config.ServiceName}", EventLogType.调试);
