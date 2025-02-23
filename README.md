@@ -24,7 +24,7 @@
 - [已知问题](#已知问题)
 
 # 如何运作
-**服务程序**是一个Windows服务的二进制程序，仅适用于较高版本的Windows平台上。
+**服务程序**是一个Windows服务的二进制程序，基于配置文件和启动参数运行，仅适用于较高版本的Windows平台上。
 
 > [!NOTE]
 > 较高版本的Windows平台，指**Windows Server 2012 R2**及以上
@@ -87,12 +87,12 @@
   
   - PowerShell命令示例  
     ```
-    C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /i /ServiceName=你的服务名称 /DisplayName="你的显示名称" /Description="你的服务描述" /StartType=你的启动类型 /Account=你的启动账户 /Arguments="-sn 你的配置文件名" 你的服务程序路径
+    C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /i /ServiceName=你的服务名称 /DisplayName="你的显示名称" /Description="你的服务描述" /StartType=你的启动类型 /Account=你的启动账户 /Arguments="-c 你的配置文件名" 你的服务程序路径
     ```
 
   - CMD命令示例  
     ```
-    C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /i "/ServiceName=你的服务名称" "/DisplayName=你的显示名称" "/Description=你的服务描述" "/StartType=你的启动类型" "/Account=你的启动账户" "/Arguments=-sn 你的配置文件名" "你的服务程序路径"
+    C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /i "/ServiceName=你的服务名称" "/DisplayName=你的显示名称" "/Description=你的服务描述" "/StartType=你的启动类型" "/Account=你的启动账户" "/Arguments=-c 你的配置文件名" "你的服务程序路径"
     ```   
 > [!NOTE]
 > 请将命令中的中文换成你需要的参数，然后再执行命令
@@ -105,11 +105,11 @@
 
   - PowerShell命令示例 
     ```
-    sc.exe create 你的服务名称 binPath= "你的服务程序路径 -sn 你的配置文件名" DisplayName= "你的服务显示名称" start= 你的启动类型 obj= 你的启动账户
+    sc.exe create 你的服务名称 binPath= "你的服务程序路径 -c 你的配置文件名" DisplayName= "你的服务显示名称" start= 你的启动类型 obj= 你的启动账户
     ```  
   - CMD命令示例
     ```
-    sc create 你的服务名称 binPath= "你的服务程序路径 -sn 你的配置文件名" DisplayName= "你的服务显示名称" start= 你的启动类型 obj= 你的启动账户
+    sc create 你的服务名称 binPath= "你的服务程序路径 -c 你的配置文件名" DisplayName= "你的服务显示名称" start= 你的启动类型 obj= 你的启动账户
     ```  
 
 > [!NOTE]
@@ -147,3 +147,5 @@
 ## 管理程序
 - 在代理服务列表页中，会有一行拥有着3个无效的按钮
 - 在代理服务列表中的pid和端口查询，只能查询单个代理实例的进程id和端口号，存在多个时也只会显示一个
+> [!CAUTION]
+> 警告！目前的用户名和用户密码会以明文保存在配置文件里的，出于安全考虑，请不要在当前版本使用**用户**作为启动账户
