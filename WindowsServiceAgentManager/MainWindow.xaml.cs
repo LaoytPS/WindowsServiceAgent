@@ -1,8 +1,6 @@
 ﻿using Microsoft.Win32;
-using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -55,31 +53,6 @@ namespace WindowsServiceAgentManager
             // 调用加载服务
             serviceList = await serviceEvent.LoadServices();
             servicesDataGrid.ItemsSource = serviceList;
-        }
-
-        // 创建服务配置文件
-        private void CreateServiceConfig(ServiceConfig config)
-        {
-            string configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfigs");
-            string configPath = Path.Combine(configDirectory, $"{config.ServiceName}.json");
-            // 确保日志目录存在
-            if (!Directory.Exists(configDirectory))
-            {
-                log.Log("未能找到ServiceConfigs文件夹，已创建新的ServiceConfigs文件夹", EventLogType.警告);
-                Directory.CreateDirectory(configDirectory);
-            }
-            if (!File.Exists(configPath))
-            {
-                log.Log($"正在尝试创建{config.ServiceName}.json配置文件", EventLogType.信息);
-                string json = JsonConvert.SerializeObject(config);
-                File.WriteAllText(configPath, json);
-            }
-            else
-            {
-                log.Log($"注意：当前文件夹下已有{config.ServiceName}的配置文件，将覆盖创建新的{config.ServiceName}.json文件", EventLogType.警告);
-                string json = JsonConvert.SerializeObject(config);
-                File.WriteAllText(configPath, json);
-            }
         }
 
         // 控件事件
@@ -146,7 +119,7 @@ namespace WindowsServiceAgentManager
             serviceEvent.InstallService(config);
 
             //调用创建配置文件
-            CreateServiceConfig(config);
+            serviceEvent.CreateServiceConfig(config);
 
             // 安装完成后，刷新服务列表
             await LoadServices();

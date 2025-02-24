@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Text.RegularExpressions;
 
 namespace WindowsServiceAgent
 {
@@ -124,12 +125,22 @@ namespace WindowsServiceAgent
             {
                 // 读取配置文件
                 string configJson = File.ReadAllText(configFilePath);
-                ServiceConfig config = JsonConvert.DeserializeObject<ServiceConfig>(configJson);
+
+                // 自定义json解析
+                Dictionary<string, string> config = ParseJson(configJson);
 
                 // 保存配置信息
-                executablePath = config.ExecutablePath;
-                arguments = config.Arguments;
-                workingDirectory = config.WorkingDirectory;
+                if (config.TryGetValue("ExecutablePath", out string execPath))
+                    executablePath = execPath;
+                else
+                {
+                    Log("配置文件中缺少 ExecutablePath 项。", EventLogType.错误);
+                    this.ExitCode = 1064;
+                    Stop();
+                    return;
+                }
+                arguments = config.ContainsKey("Arguments") ? config["Arguments"] : "";
+                workingDirectory = config.ContainsKey("WorkingDirectory") ? config["WorkingDirectory"] : null;
             }
             catch (Exception ex)
             {
@@ -137,6 +148,33 @@ namespace WindowsServiceAgent
                 this.ExitCode = 1064;
                 Stop();
             }
+        }
+
+        // JSON 解析函数
+        private Dictionary<string, string> ParseJson(string json)
+        {
+            var result = new Dictionary<string, string>();
+
+            // 匹配 "键": "值" 的模式
+            var matches = Regex.Matches(json, @"""([^""]+)""\s*:\s*""([^""]*)""");
+            foreach (Match match in matches)
+            {
+                var key = match.Groups[1].Value;
+                var value = UnescapeJsonString(match.Groups[2].Value);
+                result[key] = value;
+            }
+
+            return result;
+        }
+
+        // 处理 JSON 字符串中的转义字符
+        private string UnescapeJsonString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "";
+
+            return value.Replace("\\\"", "\"")
+                        .Replace("\\\\", "\\");
         }
 
         // 尝试启动被代理的应用程序

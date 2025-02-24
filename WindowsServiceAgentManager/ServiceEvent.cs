@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -274,9 +274,19 @@ namespace WindowsServiceAgentManager
 
                 // 读取配置文件
                 string json = File.ReadAllText(configPath);
-                ServiceConfig config = JsonConvert.DeserializeObject<ServiceConfig>(json);
+                string ExecutablePath;
+                Dictionary<string, string> config = ParseJson(json);
+                
 
-                if (config == null || string.IsNullOrEmpty(config.ExecutablePath))
+                if (config.TryGetValue("ExecutablePath", out string execPath))
+                    ExecutablePath = execPath;
+                else
+                {
+                    log.Log("配置文件中缺少 ExecutablePath 项。", EventLogType.错误);
+                    return null;
+                }
+
+                if (config == null || string.IsNullOrEmpty(ExecutablePath))
                 {
                     log.Log($"服务 {serviceName} 的配置文件内容无效", EventLogType.警告);
                     return null;
@@ -286,7 +296,7 @@ namespace WindowsServiceAgentManager
                 Process[] processes = Process.GetProcesses();
 
                 // 标准化路径
-                string targetPath = Path.GetFullPath(config.ExecutablePath).ToLowerInvariant();
+                string targetPath = Path.GetFullPath(ExecutablePath).ToLowerInvariant();
 
                 foreach (Process process in processes)
                 {
@@ -387,5 +397,73 @@ namespace WindowsServiceAgentManager
                 return "获取端口失败";
             }
         }
+
+        // 创建服务配置文件
+        public void CreateServiceConfig(ServiceConfig config)
+        {
+            string configDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfigs");
+            string configPath = Path.Combine(configDirectory, $"{config.ServiceName}.json");
+            // 手动构建 JSON 字符串
+            string json = "{\n" +
+                          $"  \"ExecutablePath\": \"{EscapeJsonString(config.ExecutablePath)}\",\n" +
+                          $"  \"Arguments\": \"{EscapeJsonString(config.Arguments)}\",\n" +
+                          $"  \"WorkingDirectory\": \"{EscapeJsonString(config.WorkingDirectory)}\"\n" +
+                          "}";
+
+            // 确保日志目录存在
+            if (!Directory.Exists(configDirectory))
+            {
+                log.Log("未能找到ServiceConfigs文件夹，已创建新的ServiceConfigs文件夹", EventLogType.警告);
+                Directory.CreateDirectory(configDirectory);
+            }
+            if (!File.Exists(configPath))
+            {
+                log.Log($"正在尝试创建{config.ServiceName}.json配置文件", EventLogType.信息);
+                File.WriteAllText(configPath, json);
+            }
+            else
+            {
+                log.Log($"注意：当前文件夹下已有{config.ServiceName}的配置文件，将覆盖创建新的{config.ServiceName}.json文件", EventLogType.警告);
+                File.WriteAllText(configPath, json);
+            }
+        }
+
+        // JSON 解析函数
+        private Dictionary<string, string> ParseJson(string json)
+        {
+            var result = new Dictionary<string, string>();
+
+            // 匹配 "键": "值" 的模式
+            var matches = Regex.Matches(json, @"""([^""]+)""\s*:\s*""([^""]*)""");
+            foreach (Match match in matches)
+            {
+                var key = match.Groups[1].Value;
+                var value = UnescapeJsonString(match.Groups[2].Value);
+                result[key] = value;
+            }
+
+            return result;
+        }
+
+        // 将特殊字符的转义成 JSON 字符
+        private string EscapeJsonString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "";
+
+            return value.Replace("\\", "\\\\")
+                        .Replace("\"", "\\\"");
+        }
+
+        // 处理 JSON 字符串中的转义字符
+        private string UnescapeJsonString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "";
+
+            return value.Replace("\\\"", "\"")
+                        .Replace("\\\\", "\\");
+        }
+
     }
 }
