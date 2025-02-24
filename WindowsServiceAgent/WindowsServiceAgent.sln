@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceAgent", "WindowsServiceAgent.csproj", "{72C5713C-592B-4171-B910-24115F187784}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceAgentManager", "..\WindowsServiceAgentManager\WindowsServiceAgentManager.csproj", "{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72C5713C-592B-4171-B910-24115F187784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72C5713C-592B-4171-B910-24115F187784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72C5713C-592B-4171-B910-24115F187784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72C5713C-592B-4171-B910-24115F187784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAE643B1-6352-4AF1-871E-BD6423DD4F9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {664A4651-4CF5-47C7-99C2-0F9735E9403E}
+	EndGlobalSection
+EndGlobal
